@@ -19,9 +19,9 @@ make dashboard
 ## Project Structure
 
 - `load_data.py` initializes the SQLite database and loads `data/cell-count.csv`.
-- `run_pipeline.py` generates the frequency summary, statistical comparison, baseline subset tables, static plot, and extra question answer.
+- `run_pipeline.py` generates the frequency summary, statistical comparison, baseline subset tables, and static plot.
 - `app.py` starts the Streamlit dashboard.
-- `outputs/` contains generated CSV, PNG, and TXT outputs from the pipeline.
+- `outputs/` contains generated CSV and PNG outputs from the pipeline.
 
 ## Database Schema
 
@@ -49,15 +49,11 @@ Part 3 compares melanoma PBMC samples from miraclib-treated responders and non-r
 
 Part 4 filters to melanoma PBMC baseline samples from miraclib-treated subjects and summarizes counts by project, response, and gender.
 
-The extra question answer is written to `outputs/extra_question_answer.txt`.
-
 ## Results Summary
 
 The baseline melanoma PBMC miraclib subset contains 656 samples. Counts by project are `prj1=384` and `prj3=272`; counts by response are `yes=331` and `no=325`; counts by gender are `M=344` and `F=312`.
 
 For the responder versus non-responder comparison, no immune cell population is significant after Benjamini-Hochberg FDR correction at `q < 0.05`. The lowest nominal p-value is for `cd4_t_cell` (`p=0.013344`, `q=0.066721`), which is suggestive but does not meet the adjusted significance threshold.
-
-Considering melanoma males, responders at `time_from_treatment_start=0` have an average B-cell count of `10206.15`.
 
 ## Generated Outputs
 
@@ -66,7 +62,6 @@ Considering melanoma males, responders at `time_from_treatment_start=0` have an 
 - `outputs/miraclib_response_boxplot.png`
 - `outputs/baseline_miraclib_melanoma_pbmc_samples.csv`
 - `outputs/baseline_subset_counts.csv`
-- `outputs/extra_question_answer.txt`
 
 ## Reproducibility Notes
 

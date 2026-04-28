@@ -296,28 +296,10 @@ def baseline_counts(rows: list[dict[str, object]]) -> list[dict[str, object]]:
     return output
 
 
-def extra_question_answer(conn: sqlite3.Connection) -> float:
-    query = """
-        SELECT AVG(cc.count) AS average_b_cells
-        FROM samples s
-        JOIN subjects subj ON subj.subject_id = s.subject_id
-        JOIN cell_counts cc ON cc.sample_id = s.sample_id
-        JOIN cell_populations cp ON cp.population_id = cc.population_id
-        WHERE subj.indication = 'melanoma'
-          AND subj.gender = 'M'
-          AND subj.response = 'yes'
-          AND s.time_from_treatment_start = 0
-          AND cp.population_name = 'b_cell'
-    """
-    row = conn.execute(query).fetchone()
-    return float(row["average_b_cells"])
-
-
 def validate_outputs(
     conn: sqlite3.Connection,
     frequency: list[dict[str, object]],
     baseline_rows: list[dict[str, object]],
-    extra_answer: float,
 ) -> None:
     sample_count = conn.execute("SELECT COUNT(*) FROM samples").fetchone()[0]
     population_count = conn.execute("SELECT COUNT(*) FROM cell_populations").fetchone()[0]
@@ -351,8 +333,6 @@ def validate_outputs(
             raise AssertionError(f"Expected {key}={expected}; found {observed.get(key)}.")
     if len(baseline_rows) != 656:
         raise AssertionError(f"Expected 656 baseline subset rows; found {len(baseline_rows)}.")
-    if f"{extra_answer:.2f}" != "10206.15":
-        raise AssertionError(f"Unexpected extra answer: {extra_answer:.2f}.")
 
 
 def main() -> None:
@@ -420,13 +400,7 @@ def main() -> None:
             baseline_count_rows,
         )
 
-        extra_answer = extra_question_answer(conn)
-        (OUTPUT_DIR / "extra_question_answer.txt").write_text(
-            f"{extra_answer:.2f}\n",
-            encoding="utf-8",
-        )
-
-        validate_outputs(conn, frequency, baseline_rows, extra_answer)
+        validate_outputs(conn, frequency, baseline_rows)
 
     print("Pipeline complete. Outputs written to outputs/.")
 

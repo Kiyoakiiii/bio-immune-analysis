@@ -27,11 +27,6 @@ def read_csv(path: str) -> pd.DataFrame:
 
 
 @st.cache_data
-def read_text(path: str) -> str:
-    return Path(path).read_text(encoding="utf-8").strip()
-
-
-@st.cache_data
 def response_frequency_data() -> pd.DataFrame:
     with sqlite3.connect(DB_PATH) as conn:
         query = """
@@ -72,7 +67,6 @@ def require_pipeline_outputs() -> bool:
         OUTPUT_DIR / "miraclib_response_stats.csv",
         OUTPUT_DIR / "baseline_miraclib_melanoma_pbmc_samples.csv",
         OUTPUT_DIR / "baseline_subset_counts.csv",
-        OUTPUT_DIR / "extra_question_answer.txt",
     ]
     missing = [path.name for path in required_paths if not path.exists()]
     if missing:
@@ -146,14 +140,13 @@ def responder_page() -> None:
 def baseline_page() -> None:
     samples = read_csv(str(OUTPUT_DIR / "baseline_miraclib_melanoma_pbmc_samples.csv"))
     counts = read_csv(str(OUTPUT_DIR / "baseline_subset_counts.csv"))
-    extra_answer = read_text(str(OUTPUT_DIR / "extra_question_answer.txt"))
 
     st.subheader("Baseline Melanoma PBMC Miraclib Subset")
 
     left, middle, right = st.columns(3)
     left.metric("Baseline samples", f"{len(samples):,}")
     middle.metric("Subjects", f"{samples['subject'].nunique():,}")
-    right.metric("Male melanoma responder B-cell average at time 0", extra_answer)
+    right.metric("Responders", f"{(samples['response'] == 'yes').sum():,}")
 
     fig = px.bar(
         counts,
